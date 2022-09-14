@@ -1,0 +1,60 @@
+{
+    "expName":"Birds Classifer",
+    "seed": 42,
+    "epochs":10,
+    "train":"True",
+    "model_param": {
+        "model_name": "convnext_tiny",
+        "pre_trained":"True",
+        "pooling":"max",
+        "in_channels":3,
+        "drop_out": 0.2
+    },
+    "dataset_param":{
+        "image_size" : 224,
+        "split_params" : {
+            "split_type":"StratifiedKFold",
+            "n_split": 5,
+            "shuffle": "True",
+            "random_state": 42
+        }
+    },
+    "audio_param":{
+        "sample_rate":32000,
+        "fmin":"40",
+        "fmax":"16000",
+        "toDB":"True",
+        "n_fft":1024,
+        "hop_length":512,
+        "n_mels":224,
+        "sample_period":5
+    },
+    "loader":{
+        "train": {
+            "batch_size": 32, 
+            "num_workers": 0,
+            "shuffle": "True",
+            "pin_memory": "False",
+            "drop_last": "True"
+        },
+        "valid":{
+            "batch_size": 64,
+            "num_worker": 4,
+            "shuffle": "False",
+            "pin_memory": "False",
+            "drop_last": "False"
+        }
+    },
+    "optimizer_param" : {
+        "optimizer" : "AdamW",
+        "lr": 2e-4,
+        "wd": 1e-3
+    },
+    "scheduler_param" :{
+        "scheduler":"CosineAnnealingLR",
+        "t_max": 10,
+        "min_lr" : 1e-6,
+        "last_epoch" :-1
+    },
+    "grad_acc" : 4
+}
