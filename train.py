@@ -1,6 +1,6 @@
 import json
 import pytorch_lightning as pl
-
+import pands as pd
 from pytorch_lightning.utilities.seed import seed_everything
 from pytorch_lightning import callbacks
 from pytorch_lightning.callbacks.progress import ProgressBarBase
@@ -16,6 +16,14 @@ from sklearn.metrics import label_ranking_average_precision_score
 from box import Box
 config = Box.from_json("config.json")
 
+from models.audio_dataset import WaveformDataset
+from utils.metrics import BCEFocal2WayLoss, BCEFocalLoss
+
+TRAIN_DF = pd.read_csv("train.df")
+
+
+# TODO add PyLight Data moodule for data loading
+
 
 class BirdsLightModel(pl.LightningModule):
     def __init__(self, cfg, backbone):
@@ -23,7 +31,6 @@ class BirdsLightModel(pl.LightningModule):
         self.cfg = cfg
         self.backbone = backbone
         self.criterion = BCEFocal2WayLoss()
-        self.transform = get_default_transforms()
         self.f1 = F1(num_classes=config.num_classes, average='macro')
         self.save_hyperparameters(cfg)
         
@@ -51,7 +58,7 @@ class BirdsLightModel(pl.LightningModule):
         return optimizer
 
 
-def skflod():
+def skFlod():
     return StratifiedKFold(
     n_splits=config.n_splits, shuffle=True, random_state=config.seed
     )
