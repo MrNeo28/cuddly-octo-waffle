@@ -16,13 +16,41 @@ from sklearn.metrics import label_ranking_average_precision_score
 from box import Box
 config = Box.from_json("config.json")
 
-from models.audio_dataset import WaveformDataset
+from models.audio_dataset import WaveformDataset, BirdDataset
 from utils.metrics import BCEFocal2WayLoss, BCEFocalLoss
 
 TRAIN_DF = pd.read_csv("train.df")
 
+sfk = StratifiedKFold(
+    n_splits=config.n_splits, shuffle=True, random_state=config.seed
+    )
+    
+class BirdsDataModule(LightningDataModule):
+    def __init__(
+        self,
+        train_df,
+        val_df,
+        cfg,
+    ):
+        super().__init__()
+        self._train_df = train_df
+        self._val_df = val_df
+        self._cfg = cfg
 
-# TODO add PyLight Data moodule for data loading
+    def __create_dataset(self, train=True):
+        return (
+            BirdDataset(self._train_df)
+            if train
+            else BirdDataset(self._val_df, validation=True)
+        )
+
+    def train_dataloader(self):
+        dataset = self.__create_dataset(True)
+        return DataLoader(dataset, **self._cfg.train_loader)
+
+    def val_dataloader(self):
+        dataset = self.__create_dataset(False)
+        return DataLoader(dataset, **self._cfg.val_loader)
 
 
 class BirdsLightModel(pl.LightningModule):
@@ -56,13 +84,6 @@ class BirdsLightModel(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
         return optimizer
-
-
-def skFlod():
-    return StratifiedKFold(
-    n_splits=config.n_splits, shuffle=True, random_state=config.seed
-    )
-
 
 def run():
     for fold, (train_idx, val_idx) in enumerate(skf.split(TRAIN_DF["filename"], TRAIN_DF["primary_label"])):

@@ -2,7 +2,8 @@
 Birds audio classifier
 
 ### NOTE
- WORK IN PROGESSS
+ This code base was able to finish top 30% in kaggle competition 
+ https://www.kaggle.com/competitions/birdclef-2022
 
 # References
 1. https://github.com/ryanwongsa/kaggle-birdsong-recognition
